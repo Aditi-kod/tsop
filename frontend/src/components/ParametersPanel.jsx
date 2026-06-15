@@ -3,8 +3,7 @@ import Modal from './Modal';
 import { generateId, saveData, getParamsForTeam } from '../data/store';
 
 const PARAM_TYPES = ['fixed text', 'number', 'task done Y/N', 'rule understanding Y/N', 'date', 'desired/expected'];
-const GLOBAL_GROUPS = ['common', 'sunshine', 'program', 'backend', 'support'];
-
+const GLOBAL_GROUPS = ['common', 'sunshine', 'hr', 'gm', 'tech', 'gd', 'smm'];
 const emptyGlobal = { name: '', type: 'number', group: 'common' };
 const emptyIndividual = { name: '', type: 'number' };
 

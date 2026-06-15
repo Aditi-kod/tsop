@@ -2,8 +2,7 @@ import { useState } from 'react';
 import Modal from './Modal';
 import { generateId, saveData } from '../data/store';
 
-const TEAM_TYPES = ['Sunshine', 'Program', 'Backend', 'Support'];
-const empty = { name: '', type: 'Backend', domain: '' };
+const TEAM_DOMAINS = ['Sunshine', 'HR', 'GM', 'Tech', 'GD', 'SMM'];const empty = { name: '', domain: 'Backend' };
 
 export default function TeamsPanel({ data, setData, onSelectTeam }) {
     const [showModal, setShowModal] = useState(false);
@@ -19,7 +18,7 @@ export default function TeamsPanel({ data, setData, onSelectTeam }) {
     function openEdit(e, team) {
         e.stopPropagation();
         setEditing(team.id);
-        setForm({ name: team.name, type: team.type, domain: team.domain });
+        setForm({ name: team.name, domain: team.domain });
         setShowModal(true);
     }
 
@@ -73,7 +72,6 @@ export default function TeamsPanel({ data, setData, onSelectTeam }) {
                 <thead className="bg-gray-50 text-gray-500 uppercase text-xs tracking-wide">
                 <tr>
                     <th className="text-left px-4 py-2">Name</th>
-                    <th className="text-left px-4 py-2">Type</th>
                     <th className="text-left px-4 py-2">Domain</th>
                     <th className="px-4 py-2"></th>
                 </tr>
@@ -93,10 +91,9 @@ export default function TeamsPanel({ data, setData, onSelectTeam }) {
                         <td className="px-4 py-3 font-medium text-blue-700">{team.name}</td>
                         <td className="px-4 py-3">
                 <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full">
-                  {team.type}
+                  {team.domain}
                 </span>
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{team.domain}</td>
                         <td className="px-4 py-3 text-right whitespace-nowrap">
                             <button onClick={e => openEdit(e, team)} className="text-gray-400 hover:text-blue-600 mr-2 text-xs">Edit</button>
                             <button onClick={e => handleDelete(e, team.id)} className="text-gray-400 hover:text-red-600 text-xs">Delete</button>
@@ -119,23 +116,14 @@ export default function TeamsPanel({ data, setData, onSelectTeam }) {
                             />
                         </div>
                         <div>
-                            <label className="text-xs text-gray-500 mb-1 block">Type</label>
+                            <label className="text-xs text-gray-500 mb-1 block">Domain</label>
                             <select
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                value={form.type}
-                                onChange={e => setForm({ ...form, type: e.target.value })}
-                            >
-                                {TEAM_TYPES.map(t => <option key={t}>{t}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="text-xs text-gray-500 mb-1 block">Domain</label>
-                            <input
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                placeholder="e.g. tech, finance"
                                 value={form.domain}
                                 onChange={e => setForm({ ...form, domain: e.target.value })}
-                            />
+                            >
+                                {TEAM_DOMAINS.map(d => <option key={d}>{d}</option>)}
+                            </select>
                         </div>
                         <div className="flex justify-end gap-2 pt-2">
                             <button onClick={() => setShowModal(false)} className="text-sm px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Cancel</button>

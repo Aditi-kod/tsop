@@ -2,13 +2,11 @@ const STORAGE_KEY = 'teams_app_data';
 
 const defaultData = {
     teams: [
-        { id: '1', name: 'Echo1', type: 'Backend', domain: 'tech' },
+        { id: '1', name: 'Echo1', domain: 'Tech' },
     ],
-    // Global parameters (common / type-scoped)
     globalParameters: [
         { id: 'gp1', name: 'No. of members', type: 'number', group: 'common' },
     ],
-    // Per-team individual parameters
     teamParameters: {
         '1': [],
     },
@@ -34,9 +32,12 @@ export function generateId() {
 // Returns all parameters visible to a team:
 // global common + type-matched + team-specific
 export function getParamsForTeam(data, team) {
-    const global = data.globalParameters.filter(
-        p => p.group === 'common' || p.group.toLowerCase() === team.type.toLowerCase()
+    const domainKey = team.domain.toLowerCase();
+    const global = (data.globalParameters ?? []).filter(
+        p => p.group === 'common'
     );
-    const individual = data.teamParameters[team.id] || [];
+    const individual = (data.globalParameters ?? []).filter(
+        p => p.group === domainKey
+    );
     return { global, individual };
 }

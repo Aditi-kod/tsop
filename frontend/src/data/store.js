@@ -10,12 +10,22 @@ const defaultData = {
     teamParameters: {
         '1': [],
     },
+    meetings: {
+        '1': [],
+    },
 };
 
 export function loadData() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : defaultData;
+        if (!raw) return defaultData;
+        const parsed = JSON.parse(raw);
+        return {
+            teams: parsed.teams ?? defaultData.teams,
+            globalParameters: parsed.globalParameters ?? defaultData.globalParameters,
+            teamParameters: parsed.teamParameters ?? {},
+            meetings: parsed.meetings ?? {},
+        };
     } catch {
         return defaultData;
     }

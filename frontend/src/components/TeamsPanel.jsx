@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import Modal from './Modal';
-import { generateId, saveData } from '../data/store';
+import { createTeam, updateTeam, deleteTeam } from '../api/client';
 
-const TEAM_DOMAINS = ['Sunshine', 'HR', 'GM', 'Tech', 'GD', 'SMM'];const empty = { name: '', domain: 'Backend' };
+const TEAM_DOMAINS = ['Sunshine', 'HR', 'GM', 'Tech', 'GD', 'SMM'];
+const empty = { name: '', domain: 'Tech' };
 
-export default function TeamsPanel({ data, setData, onSelectTeam }) {
+export default function TeamsPanel({ teams, refreshAll, onSelectTeam }) {
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState(empty);
@@ -17,53 +18,34 @@ export default function TeamsPanel({ data, setData, onSelectTeam }) {
 
     function openEdit(e, team) {
         e.stopPropagation();
-        setEditing(team.id);
+        setEditing(team._id);
         setForm({ name: team.name, domain: team.domain });
         setShowModal(true);
     }
 
-    function handleSave() {
+    async function handleSave() {
         if (!form.name.trim()) return;
-        let updated;
         if (editing) {
-            updated = {
-                ...data,
-                teams: data.teams.map(t => t.id === editing ? { ...t, ...form } : t),
-            };
+            await updateTeam(editing, form);
         } else {
-            const newTeam = { id: generateId(), ...form };
-            updated = {
-                ...data,
-                teams: [...data.teams, newTeam],
-                teamParameters: { ...data.teamParameters, [newTeam.id]: [] },
-            };
+            await createTeam(form);
         }
-        setData(updated);
-        saveData(updated);
+        await refreshAll();
         setShowModal(false);
     }
 
-    function handleDelete(e, id) {
+    async function handleDelete(e, id) {
         e.stopPropagation();
         if (!confirm('Delete this team?')) return;
-        const { [id]: _, ...rest } = data.teamParameters;
-        const updated = {
-            ...data,
-            teams: data.teams.filter(t => t.id !== id),
-            teamParameters: rest,
-        };
-        setData(updated);
-        saveData(updated);
+        await deleteTeam(id);
+        await refreshAll();
     }
 
     return (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                 <h2 className="text-sm font-semibold text-gray-700">Teams</h2>
-                <button
-                    onClick={openAdd}
-                    className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition"
-                >
+                <button onClick={openAdd} className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition">
                     + Add team
                 </button>
             </div>
@@ -77,26 +59,22 @@ export default function TeamsPanel({ data, setData, onSelectTeam }) {
                 </tr>
                 </thead>
                 <tbody>
-                {data.teams.length === 0 && (
-                    <tr>
-                        <td colSpan={4} className="text-center text-gray-400 py-6">No teams yet</td>
-                    </tr>
+                {teams.length === 0 && (
+                    <tr><td colSpan={3} className="text-center text-gray-400 py-6">No teams yet</td></tr>
                 )}
-                {data.teams.map(team => (
+                {teams.map(team => (
                     <tr
-                        key={team.id}
+                        key={team._id}
                         onClick={() => onSelectTeam(team)}
                         className="border-t border-gray-100 cursor-pointer hover:bg-blue-50 transition"
                     >
                         <td className="px-4 py-3 font-medium text-blue-700">{team.name}</td>
                         <td className="px-4 py-3">
-                <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full">
-                  {team.domain}
-                </span>
+                            <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full">{team.domain}</span>
                         </td>
                         <td className="px-4 py-3 text-right whitespace-nowrap">
                             <button onClick={e => openEdit(e, team)} className="text-gray-400 hover:text-blue-600 mr-2 text-xs">Edit</button>
-                            <button onClick={e => handleDelete(e, team.id)} className="text-gray-400 hover:text-red-600 text-xs">Delete</button>
+                            <button onClick={e => handleDelete(e, team._id)} className="text-gray-400 hover:text-red-600 text-xs">Delete</button>
                         </td>
                     </tr>
                 ))}
@@ -110,7 +88,6 @@ export default function TeamsPanel({ data, setData, onSelectTeam }) {
                             <label className="text-xs text-gray-500 mb-1 block">Name</label>
                             <input
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                placeholder="Team name"
                                 value={form.name}
                                 onChange={e => setForm({ ...form, name: e.target.value })}
                             />
